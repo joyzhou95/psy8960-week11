@@ -52,7 +52,7 @@ ols_model <- train(
     indexOut = folds
   )
 )
-toc()
+ols_runtime <- toc()
 
 ols_test <- predict(ols_model, test, na.action = na.pass)
 ols_test_r2 <- cor(ols_test, test$workhours)^2
@@ -73,7 +73,7 @@ glmnet_model <- train(
     indexOut = folds
   )
 )
-toc()
+glm_runtime <- toc()
 
 glmnet_test <- predict(glmnet_model, test, na.action = na.pass)
 glmnet_test_r2 <-cor(glmnet_test, test$workhours)^2
@@ -94,7 +94,7 @@ rf_model <- train(
     indexOut = folds,
   )
 )
-toc()
+rf_runtime <- toc()
 
 rf_test <- predict(rf_model, test, na.action = na.pass)
 rf_test_r2 <-cor(rf_test, test$workhours)^2
@@ -115,7 +115,7 @@ gbm_model <- train(
     indexOut = folds,
   )
 )
-toc()
+gbm_runtime <-toc()
 
 gbm_test <- predict(gbm_model, test, na.action = na.pass)
 gbm_test_r2 <-cor(gbm_test , test$workhours)^2
@@ -169,7 +169,7 @@ ols_model <- train(
     indexOut = folds
   )
 )
-toc()
+ols_runtime_p <- toc()
 
 ols_test <- predict(ols_model, test, na.action = na.pass)
 ols_test_r2 <- cor(ols_test, test$workhours)^2
@@ -190,7 +190,7 @@ glmnet_model <- train(
     indexOut = folds
   )
 )
-toc()
+glm_runtime_p <-toc()
 
 glmnet_test <- predict(glmnet_model, test, na.action = na.pass)
 glmnet_test_r2 <-cor(glmnet_test, test$workhours)^2
@@ -211,7 +211,7 @@ rf_model <- train(
     indexOut = folds,
   )
 )
-toc()
+rf_runtime_p <-toc()
 
 rf_test <- predict(rf_model, test, na.action = na.pass)
 rf_test_r2 <-cor(rf_test, test$workhours)^2
@@ -232,7 +232,7 @@ gbm_model <- train(
     indexOut = folds,
   )
 )
- toc()
+gbm_runtime_p <- toc()
 
 gbm_test <- predict(gbm_model, test, na.action = na.pass)
 gbm_test_r2 <-cor(gbm_test , test$workhours)^2
@@ -259,9 +259,9 @@ ho_rsq <- str_remove(ho_rsq2, pattern = "^0")
 table1_tbl <- tibble(algo, cv_rsq, ho_rsq) 
 
 ##
-original <- c(3.20, 4.70, 199.29, 494.82)
-parallelized <- c(1.59, 2.34, 215.56, 181.89)
+original <- c(round(ols_runtime$toc-ols_runtime$tic,2), round(glm_runtime$toc-glm_runtime$tic,2),
+              round(rf_runtime$toc-rf_runtime$tic,2), round(gbm_runtime$toc-gbm_runtime$tic,2))
+parallelized <- c(round(ols_runtime_p$toc-ols_runtime_p$tic,2), round(glm_runtime_p$toc-glm_runtime_p$tic,2),
+                  round(rf_runtime_p$toc-rf_runtime_p$tic,2), round(gbm_runtime_p$toc-gbm_runtime_p$tic,2))
 table2_tbl <- tibble(algo, cv_rsq, ho_rsq, original, parallelized)
-
-
 
