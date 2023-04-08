@@ -208,16 +208,29 @@ stopCluster(cluster)
 registerDoSEQ()
 
 # Publication 
-algo <- c("OLS Regression Model", "Elastic Net Model",
-          "Random Forest Model", "eXtreme Gradient Boosting Model")
+algo <- c(
+  "OLS Regression Model", 
+  "Elastic Net Model",
+  "Random Forest Model", 
+  "eXtreme Gradient Boosting Model"
+  )
 
-cv_rsq1 <- c(round(ols_model$results$Rsquared,2), round(glmnet_model$results$Rsquared[2],2), 
-             round(rf_model$results$Rsquared[3],2), round(gbm_model$results$Rsquared[7],2))
+cv_rsq1 <- c(
+  round(ols_model$results$Rsquared,2), 
+  round(glmnet_model$results$Rsquared[2],2), 
+  round(rf_model$results$Rsquared[3],2), 
+  round(gbm_model$results$Rsquared[7],2)
+  )
 
 cv_rsq2 <- sapply(cv_rsq1, format, nsmall = 2)
 cv_rsq <- str_remove(cv_rsq2, pattern = "^0")
 
-ho_rsq1 <- c(round(ols_test_r2,2), round(glmnet_test_r2,2), round(rf_test_r2,2), round(gbm_test_r2,2))
+ho_rsq1 <- c(
+  round(ols_test_r2,2), 
+  round(glmnet_test_r2,2), 
+  round(rf_test_r2,2), 
+  round(gbm_test_r2,2)
+  )
 
 ho_rsq2 <- sapply(ho_rsq1, formatC, format = "f", digits = 2)
 ho_rsq <- str_remove(ho_rsq2, pattern = "^0")
@@ -225,23 +238,39 @@ ho_rsq <- str_remove(ho_rsq2, pattern = "^0")
 table1_tbl <- tibble(algo, cv_rsq, ho_rsq) 
 
 ## Create the object with the time of running the models in the original way and format them to two decimal places
-original <- c(round(ols_runtime$toc-ols_runtime$tic,2), round(glm_runtime$toc-glm_runtime$tic,2),
-              round(rf_runtime$toc-rf_runtime$tic,2), round(gbm_runtime$toc-gbm_runtime$tic,2))
+original <- c(
+  round(ols_runtime$toc-ols_runtime$tic,2), 
+  round(glm_runtime$toc-glm_runtime$tic,2),
+  round(rf_runtime$toc-rf_runtime$tic,2), 
+  round(gbm_runtime$toc-gbm_runtime$tic,2)
+  )
 
 ## Create the object with the time of running the models in the parallelized way and format them to two decimal places
-parallelized <- c(round(ols_runtime_p$toc-ols_runtime_p$tic,2), round(glm_runtime_p$toc-glm_runtime_p$tic,2),
-                  round(rf_runtime_p$toc-rf_runtime_p$tic,2), round(gbm_runtime_p$toc-gbm_runtime_p$tic,2))
+parallelized <- c(
+  round(ols_runtime_p$toc-ols_runtime_p$tic,2), 
+  round(glm_runtime_p$toc-glm_runtime_p$tic,2),
+  round(rf_runtime_p$toc-rf_runtime_p$tic,2), 
+  round(gbm_runtime_p$toc-gbm_runtime_p$tic,2)
+  )
 
 ## Create table 2 including the models names, r-square values, and running time created above
 table2_tbl <- tibble(algo, cv_rsq, ho_rsq, original, parallelized)
 
 ## Questions 
-#### Which models benefited most from parallelization and why?
+### Which models benefited most from parallelization and why?
+### Table 4 shows that the eXtreme Gradient Boosting Model benefited the most from parallelization, it computing time decreased by 58%.
+### The reason behind the above finding could be the complexity of the gradient boosting model: it was the model that took the most time to run originally. 
+### Given its model complexity, the computing efficiency can be really boosted through splitting the job into different tasks and running them in parallel. 
 
+### How big was the difference between the fastest and slowest parallelized model? Why?
+### The difference between the fastest (gradient boosting) and slowest (OLS) model was 158.86s, the running time gap narrowed substantially compared to running the models in the original way,
+### which had a difference of 358.84. However, the difference still exists due to the model complexity of the gradient model compared to the OLS models.
+### With more hyperparameters and the need to aggregate over a large number of models, gradient boosting would still require more time to run than the OLS model. 
 
-#### How big was the difference between the fastest and slowest parallelized model? Why?
-#### If your supervisor asked you to pick a model for use in a production model, which would you recommend and why? Consider both Table 1 and Table 2 when providing an answer.
-
+### If your supervisor asked you to pick a model for use in a production model, which would you recommend and why? Consider both Table 1 and Table 2 when providing an answer.
+### I would suggest choosing the random forest model, given its high r-square value in both the training and the test set, compared to other models. 
+### Additionally, the amount of time needed to run the model is also reasonable compared to the gradient boosting model, both before and after parallelization.
+### Lastly, the random forest model's running time did not change much with parallelization, so it could potentially help save some resources as it does not need more cores to run.  
 
 
 
