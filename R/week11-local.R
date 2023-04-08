@@ -30,13 +30,15 @@ gss_tbl %>%
 shuffle_row <- sample(nrow(gss_tbl))
 shuffled_gss <- gss_tbl[shuffle_row,]
 split <- round(nrow(shuffled_gss)*0.75)
-train <- shuffled_gss[1:split,]
+train1 <- shuffled_gss[1:split,]
 test <- shuffled_gss[(split + 1):nrow(shuffled_gss),]
-folds <- createFolds(train$workhours, k = 10)
+folds <- createFolds(train1$workhours, k = 10)
 
-train <- sapply(train, as.numeric)
+train <- sapply(train1, as.numeric)
 
 ## OLS regression model
+
+### Add the functions tic and toc to all models to record the time for running the models
 tic()
 ols_model <- train(
   workhours ~.,
@@ -52,6 +54,7 @@ ols_model <- train(
     indexOut = folds
   )
 )
+### Assign the running time to an object to present the numbers in table 2 dynamically
 ols_runtime <- toc()
 
 ols_test <- predict(ols_model, test, na.action = na.pass)
@@ -154,6 +157,7 @@ folds <- createFolds(train$workhours, k = 10)
 train <- sapply(train, as.numeric)
 
 ## OLS regression model
+### Add the functions tic and toc to all models to record the time for running the models
 tic()
 ols_model <- train(
   workhours ~.,
@@ -169,6 +173,7 @@ ols_model <- train(
     indexOut = folds
   )
 )
+### Assign the running time to an object to present the numbers in table 2 dynamically
 ols_runtime_p <- toc()
 
 ols_test <- predict(ols_model, test, na.action = na.pass)
@@ -258,10 +263,14 @@ ho_rsq <- str_remove(ho_rsq2, pattern = "^0")
 
 table1_tbl <- tibble(algo, cv_rsq, ho_rsq) 
 
-##
+## Create the object with the time of running the models in the original way and format them to keep only two decimal places
 original <- c(round(ols_runtime$toc-ols_runtime$tic,2), round(glm_runtime$toc-glm_runtime$tic,2),
               round(rf_runtime$toc-rf_runtime$tic,2), round(gbm_runtime$toc-gbm_runtime$tic,2))
+
+## Create the object with the time of running the models in the parallelized way and format them to keep only two decimal places
 parallelized <- c(round(ols_runtime_p$toc-ols_runtime_p$tic,2), round(glm_runtime_p$toc-glm_runtime_p$tic,2),
                   round(rf_runtime_p$toc-rf_runtime_p$tic,2), round(gbm_runtime_p$toc-gbm_runtime_p$tic,2))
+
+## Create table 2 including the models names, r-square values, and running time created above
 table2_tbl <- tibble(algo, cv_rsq, ho_rsq, original, parallelized)
 
